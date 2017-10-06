@@ -51,6 +51,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // 1
     let player = SKSpriteNode(imageNamed: "player")
+    var monstersDestroyed = 0
     
     override func didMove(to view: SKView) {
         // 2
@@ -111,7 +112,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Create the actions
         let actionMove = SKAction.move(to: CGPoint(x: -monster.size.width/2, y: actualY), duration: TimeInterval(actualDuration))
         let actionMoveDone = SKAction.removeFromParent()
-        monster.run(SKAction.sequence([actionMove, actionMoveDone]))
+        let loseAction = SKAction.run() {
+            let reveal = SKTransition.flipHorizontal(withDuration: 0.5)
+            let gameOverScene = GameOverScene(size: self.size, won: false)
+            self.view?.presentScene(gameOverScene, transition: reveal)
+        }
+        
+        // Add the actions to the monster
+        monster.run(SKAction.sequence([actionMove, loseAction, actionMoveDone]))
         
     }
     
@@ -162,6 +170,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("Hit")
         projectile.removeFromParent()
         monster.removeFromParent()
+        
+        monstersDestroyed += 1
+        
+        if (monstersDestroyed > 30) {
+            let reveal = SKTransition.flipHorizontal(withDuration: 0.5)
+            let gameOverScene = GameOverScene(size: self.size, won: true)
+            self.view?.presentScene(gameOverScene, transition: reveal)
+        }
     }
     
     // Implementation of SKPhysicsContactDelegate protocol
