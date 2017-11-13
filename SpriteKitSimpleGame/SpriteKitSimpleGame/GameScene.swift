@@ -47,12 +47,22 @@ extension CGPoint {
     }
 }
 
+func random() -> CGFloat {
+    return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
+}
+
+func random(min: CGFloat, max: CGFloat) -> CGFloat {
+    return random() * (max - min) + min
+}
+
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // 1
     let player = SKSpriteNode(imageNamed: "player")
     var monstersDestroyed = 0
+    let killCountLabel = SKLabelNode(fontNamed: "Chalkduster")
     
+    // Is this like init???
     override func didMove(to view: SKView) {
         // 2
         backgroundColor = SKColor.white
@@ -75,14 +85,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let backgroundMusic = SKAudioNode(fileNamed: "background-music-aac.caf")
         backgroundMusic.autoplayLooped = true
         addChild(backgroundMusic)
-    }
-    
-    func random() -> CGFloat {
-        return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
-    }
-    
-    func random(min: CGFloat, max: CGFloat) -> CGFloat {
-        return random() * (max - min) + min
+        
+        // Kill Count Labels
+        let killCountTitleLabel = SKLabelNode(fontNamed: "Chalkduster")
+        killCountTitleLabel.text = "Kills: "
+        killCountTitleLabel.fontSize = 14
+        killCountTitleLabel.fontColor = SKColor.black
+        killCountTitleLabel.position = CGPoint(x: killCountTitleLabel.frame.maxX / 2 + 8, y: size.height - (killCountTitleLabel.frame.maxY / 2 + 8))
+        addChild(killCountTitleLabel)
+        
+        // Kill Count Labels
+        killCountLabel.text = "0"
+        killCountLabel.fontSize = 14
+        killCountLabel.fontColor = SKColor.black
+        killCountLabel.position = CGPoint(x: killCountTitleLabel.position.x + killCountTitleLabel.frame.maxX/2 + killCountLabel.frame.maxX/2 + 8, y: killCountTitleLabel.position.y)
+        //killCountLabel.position = CGPoint(x: killCountLabel.frame.maxX / 2 + 8, y: size.height - (killCountTitleLabel.frame.maxY / 2 + 24))
+        addChild(killCountLabel)
     }
     
     func addMonster() {
@@ -172,6 +190,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         monster.removeFromParent()
         
         monstersDestroyed += 1
+        killCountLabel.text = String(monstersDestroyed)
         
         if (monstersDestroyed > 30) {
             let reveal = SKTransition.flipHorizontal(withDuration: 0.5)
