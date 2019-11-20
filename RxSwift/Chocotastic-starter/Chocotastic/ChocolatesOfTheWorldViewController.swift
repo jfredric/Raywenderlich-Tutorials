@@ -49,6 +49,7 @@ extension ChocolatesOfTheWorldViewController {
     
     setupCartObserver()
     setupCellConfiguration()
+    setupCellTapHandling()
   }
   
 //  override func viewWillAppear(_ animated: Bool) {
@@ -79,6 +80,21 @@ private extension ChocolatesOfTheWorldViewController {
                 row, chocolate, cell in
                 cell.configureWithChocolate(chocolate: chocolate) //4
       }
+      .disposed(by: disposeBag) //5
+  }
+  
+  func setupCellTapHandling() {
+    tableView
+      .rx
+      .modelSelected(Chocolate.self) //1
+      .subscribe(onNext: { [unowned self] chocolate in // 2
+        let newValue =  ShoppingCart.sharedCart.chocolates.value + [chocolate]
+        ShoppingCart.sharedCart.chocolates.accept(newValue) //3
+          
+        if let selectedRowIndexPath = self.tableView.indexPathForSelectedRow {
+          self.tableView.deselectRow(at: selectedRowIndexPath, animated: true)
+        } //4
+      })
       .disposed(by: disposeBag) //5
   }
 }
